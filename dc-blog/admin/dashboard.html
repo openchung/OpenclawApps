@@ -3,16 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>儀表板 - D.C. Blog</title>
+  <title>儀表板 - D.C 手札</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
   <header class="header">
     <div class="container header-content">
-      <a href="dashboard.html" class="logo">管理後台</a>
+      <a href="dashboard.html" class="logo">D.C 手札</a>
       <nav class="nav">
         <a href="dashboard.html">儀表板</a>
         <a href="pages.html">頁面管理</a>
+        <a href="posts.html">文章管理</a>
         <a href="../index.html">返回前台</a>
       </nav>
     </div>
@@ -21,37 +22,37 @@
   <main class="main">
     <div class="container">
       <div class="dashboard-header">
-        <h1>儀表板</h1>
+        <h1>📊 儀表板</h1>
         <button id="logout-btn" class="btn btn-secondary" style="width: auto;">登出</button>
       </div>
 
       <div class="admin-cards">
-        <a href="edit-about.html" class="admin-card">
-          <h3>📝 編輯「關於我」</h3>
+        <a href="edit-about.html" class="admin-card" style="background: linear-gradient(135deg, #e8f0fe 0%, #e6f4ea 100%);">
+          <h3 style="color: #4285f4;">📝 編輯「關於我」</h3>
           <p>修改關於頁面內容</p>
         </a>
         
-        <a href="posts.html" class="admin-card">
-          <h3>📄 文章管理</h3>
+        <a href="posts.html" class="admin-card" style="background: linear-gradient(135deg, #fce8e6 0%, #fef7e0 100%);">
+          <h3 style="color: #ea4335;">📄 文章管理</h3>
           <p>建立和管理文章</p>
         </a>
         
-        <a href="../index.html" class="admin-card">
-          <h3>🌐 檢視前台</h3>
+        <a href="../index.html" class="admin-card" style="background: linear-gradient(135deg, #e6f4ea 0%, #e8f0fe 100%);">
+          <h3 style="color: #34a853;">🌐 檢視前台</h3>
           <p>查看網站前台效果</p>
         </a>
       </div>
 
-      <div style="background: white; border: 1px solid #dadce0; border-radius: 8px; padding: 24px;">
-        <h3 style="margin-bottom: 16px;">快速統計</h3>
+      <div style="background: white; border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow);">
+        <h3 style="margin-bottom: 16px; color: #202124;">📈 快速統計</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
-          <div>
-            <p style="color: #5f6368; font-size: 14px;">已發布頁面</p>
-            <p id="pages-count" style="font-size: 32px; color: #1a73e8; font-weight: 500;">1</p>
+          <div style="background: linear-gradient(135deg, #4285f4 0%, #34a853 100%); padding: 20px; border-radius: 12px; color: white;">
+            <p style="font-size: 14px; opacity: 0.9;">已發布頁面</p>
+            <p id="pages-count" style="font-size: 40px; font-weight: 700;">1</p>
           </div>
-          <div>
-            <p style="color: #5f6368; font-size: 14px;">文章數量</p>
-            <p id="posts-count" style="font-size: 32px; color: #1e8e3e; font-weight: 500;">0</p>
+          <div style="background: linear-gradient(135deg, #ea4335 0%, #fbbc05 100%); padding: 20px; border-radius: 12px; color: white;">
+            <p style="font-size: 14px; opacity: 0.9;">文章數量</p>
+            <p id="posts-count" style="font-size: 40px; font-weight: 700;">0</p>
           </div>
         </div>
       </div>
@@ -60,18 +61,16 @@
 
   <footer class="footer">
     <div class="container">
-      <p>© 2026 D.C. Blog. All rights reserved.</p>
+      <p>© 2026 D.C 手札。All rights reserved.</p>
     </div>
   </footer>
 
   <script src="../js/app.js"></script>
   <script>
-    // 檢查是否已登入
     if (!isLoggedIn()) {
       window.location.href = 'login.html';
     }
 
-    // 登出功能
     document.getElementById('logout-btn').addEventListener('click', () => {
       if (confirm('確定要登出嗎？')) {
         logout();
@@ -79,7 +78,6 @@
       }
     });
 
-    // 載入統計數據
     document.addEventListener('DOMContentLoaded', () => {
       const db = getDB();
       document.getElementById('pages-count').textContent = Object.keys(db.pages).length;
