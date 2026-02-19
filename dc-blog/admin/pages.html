@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>頁面管理 - D.C. Blog</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container header-content">
+      <a href="dashboard.html" class="logo">管理後台</a>
+      <nav class="nav">
+        <a href="dashboard.html">儀表板</a>
+        <a href="pages.html">頁面管理</a>
+        <a href="../index.html">返回前台</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <div class="dashboard-header">
+        <h1>頁面管理</h1>
+        <button id="logout-btn" class="btn btn-secondary" style="width: auto;">登出</button>
+      </div>
+
+      <div style="background: white; border: 1px solid #dadce0; border-radius: 8px; overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background: #f8f9fa; border-bottom: 1px solid #dadce0;">
+              <th style="text-align: left; padding: 16px; font-size: 14px; color: #5f6368; font-weight: 500;">標題</th>
+              <th style="text-align: left; padding: 16px; font-size: 14px; color: #5f6368; font-weight: 500;">Slug</th>
+              <th style="text-align: left; padding: 16px; font-size: 14px; color: #5f6368; font-weight: 500;">狀態</th>
+              <th style="text-align: right; padding: 16px; font-size: 14px; color: #5f6368; font-weight: 500;">操作</th>
+            </tr>
+          </thead>
+          <tbody id="pages-table">
+            <!-- 頁面列表將由 JavaScript 動態載入 -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>© 2026 D.C. Blog. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../js/app.js"></script>
+  <script>
+    // 檢查是否已登入
+    if (!isLoggedIn()) {
+      window.location.href = 'login.html';
+    }
+
+    // 登出功能
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      if (confirm('確定要登出嗎？')) {
+        logout();
+        window.location.href = 'login.html';
+      }
+    });
+
+    // 載入頁面列表
+    function loadPages() {
+      const db = getDB();
+      const tbody = document.getElementById('pages-table');
+      
+      tbody.innerHTML = Object.entries(db.pages).map(([slug, page]) => `
+        <tr style="border-bottom: 1px solid #dadce0;">
+          <td style="padding: 16px;">${escapeHtml(page.title)}</td>
+          <td style="padding: 16px; color: #5f6368;">/${slug}</td>
+          <td style="padding: 16px;">
+            <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; background: ${page.published ? '#e6f4ea' : '#f1f3f4'}; color: ${page.published ? '#1e8e3e' : '#5f6368'};">
+              ${page.published ? '已發布' : '未發布'}
+            </span>
+          </td>
+          <td style="padding: 16px; text-align: right;">
+            <a href="edit-${slug}.html" style="color: #1a73e8; text-decoration: none; font-size: 14px;">編輯</a>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', loadPages);
+  </script>
+</body>
+</html>

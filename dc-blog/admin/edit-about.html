@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>編輯關於我 - D.C. Blog</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container header-content">
+      <a href="dashboard.html" class="logo">管理後台</a>
+      <nav class="nav">
+        <a href="dashboard.html">儀表板</a>
+        <a href="pages.html">頁面管理</a>
+        <a href="../index.html">返回前台</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <form id="edit-form" class="edit-form">
+        <h1>編輯頁面：關於我</h1>
+        
+        <div class="form-group">
+          <label for="title">頁面標題</label>
+          <input type="text" id="title" name="title" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="content">頁面內容</label>
+          <textarea id="content" name="content" rows="12" required style="width: 100%; padding: 12px 16px; border: 1px solid #dadce0; border-radius: 4px; font-size: 16px; font-family: inherit; resize: none;"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <div class="checkbox-group">
+            <input type="checkbox" id="published" name="published" checked>
+            <label for="published" style="display: inline; margin: 0;">發布此頁面（前台可見）</label>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" class="btn" id="save-btn">儲存變更</button>
+          <a href="../about.html" target="_blank">預覽頁面</a>
+          <a href="dashboard.html">返回</a>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>© 2026 D.C. Blog. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../js/app.js"></script>
+  <script>
+    // 檢查是否已登入
+    if (!isLoggedIn()) {
+      window.location.href = 'login.html';
+    }
+
+    // 載入當前內容
+    document.addEventListener('DOMContentLoaded', () => {
+      const db = getDB();
+      const page = db.pages.about;
+      
+      if (page) {
+        document.getElementById('title').value = page.title;
+        document.getElementById('content').value = page.content;
+        document.getElementById('published').checked = page.published;
+      }
+    });
+
+    // 儲存功能
+    document.getElementById('edit-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const saveBtn = document.getElementById('save-btn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = '儲存中...';
+      
+      const data = {
+        title: document.getElementById('title').value,
+        content: document.getElementById('content').value,
+        published: document.getElementById('published').checked
+      };
+      
+      setTimeout(() => {
+        updatePage('about', data);
+        alert('頁面已更新！');
+        saveBtn.disabled = false;
+        saveBtn.textContent = '儲存變更';
+      }, 300);
+    });
+  </script>
+</body>
+</html>

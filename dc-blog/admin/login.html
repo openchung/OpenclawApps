@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>後台登入 - D.C. Blog</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container header-content">
+      <a href="../index.html" class="logo">D.C. Blog</a>
+      <nav class="nav">
+        <a href="../index.html">首頁</a>
+        <a href="../about.html">關於我</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="login-container">
+      <div class="login-box">
+        <h1>後台管理</h1>
+        <p class="subtitle">請登入以繼續</p>
+        
+        <div id="error-message" class="error-message" style="display: none;"></div>
+        
+        <form id="login-form">
+          <div class="form-group">
+            <label for="username">帳號</label>
+            <input type="text" id="username" name="username" required autocomplete="username">
+          </div>
+          
+          <div class="form-group">
+            <label for="password">密碼</label>
+            <input type="password" id="password" name="password" required autocomplete="current-password">
+          </div>
+          
+          <button type="submit" class="btn" id="submit-btn">登入</button>
+        </form>
+        
+        <div style="text-align: center; margin-top: 24px;">
+          <a href="../index.html" style="color: #5f6368; text-decoration: none; font-size: 14px;">← 返回首頁</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>© 2026 D.C. Blog. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../js/app.js"></script>
+  <script>
+    // 如果已經登入，redirect 到儀表板
+    if (isLoggedIn()) {
+      window.location.href = 'dashboard.html';
+    }
+
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const submitBtn = document.getElementById('submit-btn');
+      const errorMsg = document.getElementById('error-message');
+      
+      submitBtn.disabled = true;
+      submitBtn.textContent = '登入中...';
+      errorMsg.style.display = 'none';
+      
+      setTimeout(() => {
+        if (login(username, password)) {
+          setLoggedIn('true');
+          window.location.href = 'dashboard.html';
+        } else {
+          errorMsg.textContent = '帳號或密碼錯誤';
+          errorMsg.style.display = 'block';
+          submitBtn.disabled = false;
+          submitBtn.textContent = '登入';
+        }
+      }, 500);
+    });
+  </script>
+</body>
+</html>

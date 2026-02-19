@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D.C. Blog</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container header-content">
+      <a href="index.html" class="logo">D.C. Blog</a>
+      <nav class="nav">
+        <a href="index.html">首頁</a>
+        <a href="about.html">關於我</a>
+        <a href="admin/login.html">後台管理</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <section class="hero">
+        <h1>歡迎來到 D.C. Blog</h1>
+        <p>分享想法、技術與生活的點滴</p>
+      </section>
+
+      <section class="latest-posts">
+        <h2>最新文章</h2>
+        <div id="posts-container" class="posts-grid">
+          <!-- 文章將由 JavaScript 動態載入 -->
+        </div>
+      </section>
+
+      <section class="pages-section">
+        <h2>頁面</h2>
+        <div class="pages-list">
+          <a href="about.html" class="page-link">關於我</a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>© 2026 D.C. Blog. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    // 載入首頁文章
+    document.addEventListener('DOMContentLoaded', () => {
+      loadPosts();
+    });
+  </script>
+</body>
+</html>
