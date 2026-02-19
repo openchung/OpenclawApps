@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -37,8 +38,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-128px)] flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gray-50">
       <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <Link href="/" className="text-2xl font-medium text-gray-900 hover:text-blue-600">
+            D.C. Blog
+          </Link>
+        </div>
         <div className="bg-white border border-gray-200 rounded-lg p-8">
           <div className="text-center mb-8">
             <h1 className="text-2xl font-medium text-gray-900 mb-2">
@@ -98,9 +104,9 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <a href="/" className="text-sm text-gray-600 hover:text-gray-900">
+            <Link href="/" className="text-sm text-gray-600 hover:text-gray-900">
               ← 返回首頁
-            </a>
+            </Link>
           </div>
         </div>
       </div>
