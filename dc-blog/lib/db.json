@@ -1,0 +1,21 @@
+{
+  "posts": [],
+  "pages": [
+    {
+      "id": "about",
+      "title": "關於我",
+      "slug": "about",
+      "content": "歡迎來到 D.C. Blog！這是關於我的頁面。",
+      "published": true,
+      "updatedAt": "2026-02-19T14:30:00.000Z"
+    }
+  ],
+  "users": [
+    {
+      "id": "1",
+      "email": "Open",
+      "name": "Admin",
+      "password": "$2b$10$4iu74Bq7H6ya56Wa7P8sxeoOA2q7LlwZ1XcMUVqnsPt1xnWoyMoaC"
+    }
+  ]
+}
