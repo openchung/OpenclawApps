@@ -5,6 +5,97 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>文章管理 - D.C. Blog</title>
   <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .btn-primary {
+      background: #1a73e8;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #1557b0;
+    }
+    
+    .btn-success {
+      background: #1e8e3e;
+      color: white;
+    }
+    
+    .btn-success:hover {
+      background: #197332;
+    }
+    
+    .btn-danger {
+      background: #d93025;
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background: #c5221f;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .action-btn {
+      padding: 6px 12px;
+      font-size: 13px;
+      border-radius: 4px;
+      border: 1px solid #dadce0;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .action-btn:hover {
+      background: #f1f3f4;
+    }
+    
+    .action-btn.edit {
+      color: #1a73e8;
+      border-color: #1a73e8;
+    }
+    
+    .action-btn.edit:hover {
+      background: #e8f0fe;
+    }
+    
+    .action-btn.preview {
+      color: #1e8e3e;
+      border-color: #1e8e3e;
+    }
+    
+    .action-btn.preview:hover {
+      background: #e6f4ea;
+    }
+    
+    .action-btn.delete {
+      color: #d93025;
+      border-color: #d93025;
+    }
+    
+    .action-btn.delete:hover {
+      background: #fce8e6;
+    }
+    
+    .sync-section {
+      background: white;
+      border: 1px solid #dadce0;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    
+    .sync-section h3 {
+      margin-bottom: 16px;
+    }
+    
+    .sync-buttons {
+      display: flex;
+      gap: 12px;
+    }
+  </style>
 </head>
 <body>
   <header class="header">
@@ -23,6 +114,18 @@
       <div class="dashboard-header">
         <h1>文章管理</h1>
         <button id="logout-btn" class="btn btn-secondary" style="width: auto;">登出</button>
+      </div>
+
+      <div class="sync-section">
+        <h3>📡 GitHub 同步</h3>
+        <p style="color: #5f6368; margin-bottom: 16px; font-size: 14px;">
+          從 GitHub 同步文章到本地，或將本地文章發佈到 GitHub
+        </p>
+        <div class="sync-buttons">
+          <button id="sync-btn" class="btn btn-primary">🔄 從 GitHub 同步</button>
+          <a href="posts-new.html" class="btn" style="text-decoration: none; display: inline-flex; align-items: center;">➕ 新建文章</a>
+        </div>
+        <p id="sync-status" style="margin-top: 12px; font-size: 14px; color: #5f6368;"></p>
       </div>
 
       <div style="background: white; border: 1px solid #dadce0; border-radius: 8px; overflow: hidden;">
@@ -44,10 +147,6 @@
           暫無文章
         </div>
       </div>
-
-      <div style="margin-top: 24px; text-align: center;">
-        <p style="color: #5f6368; font-size: 14px;">文章管理功能開發中...</p>
-      </div>
     </div>
   </main>
 
@@ -58,6 +157,7 @@
   </footer>
 
   <script src="../js/app.js"></script>
+  <script src="../js/github.js"></script>
   <script>
     if (!isLoggedIn()) {
       window.location.href = 'login.html';
@@ -70,6 +170,7 @@
       }
     });
 
+    // 載入文章列表
     function loadPosts() {
       const db = getDB();
       const tbody = document.getElementById('posts-table');
@@ -84,20 +185,86 @@
       noPosts.style.display = 'none';
       tbody.innerHTML = db.posts.map(post => `
         <tr style="border-bottom: 1px solid #dadce0;">
-          <td style="padding: 16px;">${escapeHtml(post.title)}</td>
-          <td style="padding: 16px; color: #5f6368;">${escapeHtml(post.author)}</td>
-          <td style="padding: 16px; color: #5f6368;">${new Date(post.date).toLocaleDateString('zh-TW')}</td>
+          <td style="padding: 16px;">
+            <div style="font-weight: 500;">${escapeHtml(post.title || post.slug)}</div>
+            ${post.excerpt ? `<div style="font-size: 13px; color: #5f6368; margin-top: 4px;">${escapeHtml(post.excerpt.substring(0, 100))}...</div>` : ''}
+          </td>
+          <td style="padding: 16px; color: #5f6368;">${escapeHtml(post.author || '-')}</td>
+          <td style="padding: 16px; color: #5f6368;">${post.date ? new Date(post.date).toLocaleDateString('zh-TW') : '-'}</td>
           <td style="padding: 16px;">
             <span style="padding: 4px 12px; border-radius: 12px; font-size: 12px; background: ${post.published ? '#e6f4ea' : '#f1f3f4'}; color: ${post.published ? '#1e8e3e' : '#5f6368'};">
-              ${post.published ? '已發布' : '未發布'}
+              ${post.published ? '已發佈' : '草稿'}
             </span>
           </td>
           <td style="padding: 16px; text-align: right;">
-            <span style="color: #5f6368; font-size: 14px;">編輯</span>
+            <div class="action-buttons" style="justify-content: flex-end;">
+              <button class="action-btn edit" onclick="editPost('${post.slug}')">編輯</button>
+              <button class="action-btn preview" onclick="previewPost('${post.slug}')">預覽</button>
+              ${post.published ? `<button class="action-btn delete" onclick="deletePost('${post.slug}')">刪除</button>` : ''}
+            </div>
           </td>
         </tr>
       `).join('');
     }
+
+    // 編輯文章
+    window.editPost = function(slug) {
+      window.location.href = `posts-edit.html?slug=${slug}`;
+    };
+
+    // 預覽文章
+    window.previewPost = function(slug) {
+      window.open(`../post.html?slug=${slug}`, '_blank');
+    };
+
+    // 刪除文章
+    window.deletePost = async function(slug) {
+      if (!confirm(`確定要刪除文章「${slug}」嗎？這將從 GitHub 上移除！`)) {
+        return;
+      }
+
+      const token = getGithubToken();
+      if (!token) {
+        alert('請先設置 GitHub Token');
+        return;
+      }
+
+      try {
+        await deletePostFromGithub(slug);
+        alert('文章已刪除');
+        loadPosts();
+      } catch (error) {
+        alert('刪除失敗：' + error.message);
+      }
+    };
+
+    // 同步功能
+    document.getElementById('sync-btn').addEventListener('click', async () => {
+      const syncBtn = document.getElementById('sync-btn');
+      const syncStatus = document.getElementById('sync-status');
+      
+      const token = getGithubToken();
+      if (!token) {
+        alert('請先設置 GitHub Token');
+        return;
+      }
+
+      syncBtn.disabled = true;
+      syncBtn.textContent = '同步中...';
+      syncStatus.textContent = '正在從 GitHub 同步文章...';
+
+      try {
+        const count = await syncPostsFromGithub();
+        syncStatus.textContent = `✅ 成功同步 ${count} 篇文章`;
+        syncBtn.disabled = false;
+        syncBtn.textContent = '🔄 從 GitHub 同步';
+        loadPosts();
+      } catch (error) {
+        syncStatus.textContent = '❌ 同步失敗：' + error.message;
+        syncBtn.disabled = false;
+        syncBtn.textContent = '🔄 從 GitHub 同步';
+      }
+    });
 
     document.addEventListener('DOMContentLoaded', loadPosts);
   </script>

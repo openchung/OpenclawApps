@@ -41,18 +41,21 @@ function loadPosts() {
   
   if (!container) return;
   
-  if (db.posts.length === 0) {
+  // 只顯示已發布的文章
+  const publishedPosts = db.posts.filter(p => p.published);
+  
+  if (publishedPosts.length === 0) {
     container.innerHTML = '<p style="color: #5f6368; text-align: center; padding: 40px;">暫無文章，敬請期待！</p>';
     return;
   }
   
-  container.innerHTML = db.posts.map(post => `
-    <article class="post-card">
-      <h3>${escapeHtml(post.title)}</h3>
-      <p class="excerpt">${escapeHtml(post.excerpt)}</p>
+  container.innerHTML = publishedPosts.map(post => `
+    <article class="post-card" onclick="window.location.href='post.html?slug=${post.slug}'" style="cursor: pointer;">
+      <h3>${escapeHtml(post.frontmatter?.title || post.title)}</h3>
+      <p class="excerpt">${escapeHtml(post.frontmatter?.excerpt || post.excerpt || '')}</p>
       <div class="meta">
-        <span>${escapeHtml(post.author)}</span> • 
-        <span>${new Date(post.date).toLocaleDateString('zh-TW')}</span>
+        <span>${escapeHtml(post.frontmatter?.author || post.author)}</span> • 
+        <span>${new Date(post.frontmatter?.date || post.date).toLocaleDateString('zh-TW')}</span>
       </div>
     </article>
   `).join('');

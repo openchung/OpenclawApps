@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新建文章 - D.C. Blog</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .editor-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      height: 60vh;
+    }
+    
+    .editor-panel {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .editor-panel h3 {
+      margin-bottom: 12px;
+      font-size: 16px;
+      color: #5f6368;
+    }
+    
+    #markdown-editor {
+      flex: 1;
+      width: 100%;
+      padding: 16px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-size: 15px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      resize: none;
+      line-height: 1.6;
+    }
+    
+    #markdown-preview {
+      flex: 1;
+      padding: 16px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      background: #f8f9fa;
+      overflow-y: auto;
+      line-height: 1.8;
+    }
+    
+    #markdown-preview h1, #markdown-preview h2, #markdown-preview h3 {
+      margin-top: 24px;
+      margin-bottom: 16px;
+    }
+    
+    #markdown-preview p {
+      margin-bottom: 16px;
+    }
+    
+    #markdown-preview code {
+      background: #e8eaed;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 14px;
+    }
+    
+    #markdown-preview pre {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 16px;
+      border-radius: 4px;
+      overflow-x: auto;
+      margin-bottom: 16px;
+    }
+    
+    #markdown-preview pre code {
+      background: transparent;
+      padding: 0;
+    }
+    
+    #markdown-preview ul, #markdown-preview ol {
+      margin-bottom: 16px;
+      padding-left: 24px;
+    }
+    
+    #markdown-preview blockquote {
+      border-left: 4px solid #1a73e8;
+      margin: 16px 0;
+      padding-left: 16px;
+      color: #5f6368;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    
+    .github-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: #e8f0fe;
+      border: 1px solid #1a73e8;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    
+    .github-status.error {
+      background: #fce8e6;
+      border-color: #d93025;
+      color: #d93025;
+    }
+    
+    .github-status input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 14px;
+    }
+    
+    @media (max-width: 1024px) {
+      .editor-container {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+      
+      #markdown-editor, #markdown-preview {
+        min-height: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-content">
+      <a href="dashboard.html" class="logo">管理後台</a>
+      <nav class="nav">
+        <a href="dashboard.html">儀表板</a>
+        <a href="posts.html">文章管理</a>
+        <a href="../index.html">返回前台</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <div class="dashboard-header" style="margin-bottom: 24px;">
+        <h1>新建文章</h1>
+        <button id="back-btn" class="btn btn-secondary" style="width: auto;">返回</button>
+      </div>
+
+      <div id="github-status" class="github-status" style="display: none;">
+        <span id="github-status-icon">⚠️</span>
+        <input type="text" id="github-token-input" placeholder="請輸入 GitHub Token（用於發佈文章）">
+        <button id="save-token-btn" class="btn" style="width: auto; padding: 8px 16px; font-size: 14px;">保存 Token</button>
+      </div>
+
+      <form id="post-form" class="edit-form" style="max-width: none;">
+        <div class="form-row" style="margin-bottom: 24px;">
+          <div class="form-group">
+            <label for="title">文章標題</label>
+            <input type="text" id="title" name="title" required placeholder="輸入文章標題">
+          </div>
+          
+          <div class="form-group">
+            <label for="slug">Slug (網址)</label>
+            <input type="text" id="slug" name="slug" required placeholder="例如：my-first-post">
+          </div>
+        </div>
+
+        <div class="form-row" style="margin-bottom: 24px;">
+          <div class="form-group">
+            <label for="author">作者</label>
+            <input type="text" id="author" name="author" value="Admin" placeholder="作者名稱">
+          </div>
+          
+          <div class="form-group">
+            <label for="excerpt">摘要 (可選)</label>
+            <input type="text" id="excerpt" name="excerpt" placeholder="文章摘要，不填則自動生成">
+          </div>
+        </div>
+
+        <div class="editor-container">
+          <div class="editor-panel">
+            <h3>📝 Markdown 編輯</h3>
+            <textarea id="markdown-editor" placeholder="# 輸入文章內容&#10;&#10;使用 **Markdown** 格式編寫文章..."></textarea>
+          </div>
+          
+          <div class="editor-panel">
+            <h3>👁️ 即時預覽</h3>
+            <div id="markdown-preview"></div>
+          </div>
+        </div>
+
+        <div class="form-actions" style="margin-top: 24px;">
+          <button type="button" id="save-draft-btn" class="btn">💾 儲存草稿</button>
+          <button type="button" id="publish-btn" class="btn" style="background: #1e8e3e;">🚀 發佈到 GitHub</button>
+          <a href="posts.html">返回</a>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>© 2026 D.C. Blog. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/github.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    // 檢查是否已登入
+    if (!isLoggedIn()) {
+      window.location.href = 'login.html';
+    }
+
+    // 返回按鈕
+    document.getElementById('back-btn').addEventListener('click', () => {
+      window.location.href = 'posts.html';
+    });
+
+    // Markdown 預覽
+    const editor = document.getElementById('markdown-editor');
+    const preview = document.getElementById('markdown-preview');
+
+    editor.addEventListener('input', () => {
+      preview.innerHTML = marked.parse(editor.value);
+    });
+
+    // GitHub Token 管理
+    const githubStatus = document.getElementById('github-status');
+    const tokenInput = document.getElementById('github-token-input');
+    const saveTokenBtn = document.getElementById('save-token-btn');
+
+    // 檢查是否有 token
+    const existingToken = getGithubToken();
+    if (existingToken) {
+      githubStatus.style.display = 'flex';
+      githubStatus.classList.remove('error');
+      document.getElementById('github-status-icon').textContent = '✅';
+      githubStatus.innerHTML = `
+        <span>✅ GitHub Token 已設置</span>
+        <button onclick="clearGithubToken()" class="btn btn-secondary" style="width: auto; padding: 6px 12px; font-size: 12px; margin-left: auto;">更換 Token</button>
+      `;
+    } else {
+      githubStatus.style.display = 'flex';
+      githubStatus.classList.add('error');
+    }
+
+    function clearGithubToken() {
+      localStorage.removeItem('github_token');
+      location.reload();
+    }
+
+    saveTokenBtn.addEventListener('click', () => {
+      const token = tokenInput.value.trim();
+      if (token) {
+        setGithubToken(token);
+        location.reload();
+      }
+    });
+
+    // Slug 自動生成
+    const titleInput = document.getElementById('title');
+    const slugInput = document.getElementById('slug');
+    let slugEdited = false;
+
+    titleInput.addEventListener('input', () => {
+      if (!slugEdited) {
+        slugInput.value = titleInput.value
+          .toLowerCase()
+          .replace(/[^a-z0-9\u4e00-\u9fa5]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+      }
+    });
+
+    slugInput.addEventListener('input', () => {
+      slugEdited = true;
+    });
+
+    // 儲存草稿
+    document.getElementById('save-draft-btn').addEventListener('click', async () => {
+      const title = document.getElementById('title').value;
+      const slug = document.getElementById('slug').value;
+      const author = document.getElementById('author').value;
+      const excerpt = document.getElementById('excerpt').value;
+      const content = editor.value;
+
+      if (!title || !slug || !content) {
+        alert('請填寫標題、Slug 和內容');
+        return;
+      }
+
+      try {
+        await savePostToLocal(slug, content, {
+          title,
+          author,
+          excerpt,
+          date: new Date().toISOString()
+        });
+
+        alert('草稿已儲存到本地！');
+      } catch (error) {
+        alert('儲存失敗：' + error.message);
+      }
+    });
+
+    // 發佈到 GitHub
+    document.getElementById('publish-btn').addEventListener('click', async () => {
+      const title = document.getElementById('title').value;
+      const slug = document.getElementById('slug').value;
+      const author = document.getElementById('author').value;
+      const excerpt = document.getElementById('excerpt').value;
+      const content = editor.value;
+
+      if (!title || !slug || !content) {
+        alert('請填寫標題、Slug 和內容');
+        return;
+      }
+
+      const token = getGithubToken();
+      if (!token) {
+        alert('請先設置 GitHub Token 才能發佈文章');
+        return;
+      }
+
+      if (!confirm('確定要發佈這篇文章到 GitHub 嗎？')) {
+        return;
+      }
+
+      const publishBtn = document.getElementById('publish-btn');
+      const originalText = publishBtn.textContent;
+      publishBtn.disabled = true;
+      publishBtn.textContent = '發佈中...';
+
+      try {
+        await publishPostToGithub(slug, content, {
+          title,
+          author,
+          excerpt,
+          date: new Date().toISOString()
+        });
+
+        alert('文章已成功發佈到 GitHub！');
+        window.location.href = 'posts.html';
+      } catch (error) {
+        alert('發佈失敗：' + error.message);
+        publishBtn.disabled = false;
+        publishBtn.textContent = originalText;
+      }
+    });
+  </script>
+</body>
+</html>

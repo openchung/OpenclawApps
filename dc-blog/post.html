@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文章預覽 - D.C. Blog</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .post-article {
+      background: white;
+      border: 1px solid #dadce0;
+      border-radius: 8px;
+      padding: 40px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .post-header {
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #dadce0;
+    }
+    
+    .post-title {
+      font-size: 32px;
+      font-weight: 500;
+      margin-bottom: 16px;
+      color: #202124;
+    }
+    
+    .post-meta {
+      display: flex;
+      gap: 16px;
+      color: #5f6368;
+      font-size: 14px;
+    }
+    
+    .post-content {
+      font-size: 16px;
+      line-height: 1.8;
+      color: #3c4043;
+    }
+    
+    .post-content h1, .post-content h2, .post-content h3, .post-content h4 {
+      margin-top: 32px;
+      margin-bottom: 16px;
+      font-weight: 500;
+      color: #202124;
+    }
+    
+    .post-content h1 { font-size: 28px; }
+    .post-content h2 { font-size: 24px; }
+    .post-content h3 { font-size: 20px; }
+    .post-content h4 { font-size: 18px; }
+    
+    .post-content p {
+      margin-bottom: 16px;
+    }
+    
+    .post-content a {
+      color: #1a73e8;
+      text-decoration: underline;
+    }
+    
+    .post-content code {
+      background: #f1f3f4;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 14px;
+    }
+    
+    .post-content pre {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 20px;
+      border-radius: 4px;
+      overflow-x: auto;
+      margin: 24px 0;
+    }
+    
+    .post-content pre code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+    }
+    
+    .post-content ul, .post-content ol {
+      margin: 16px 0;
+      padding-left: 24px;
+    }
+    
+    .post-content li {
+      margin-bottom: 8px;
+    }
+    
+    .post-content blockquote {
+      border-left: 4px solid #1a73e8;
+      margin: 24px 0;
+      padding-left: 16px;
+      color: #5f6368;
+    }
+    
+    .post-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+      margin: 16px 0;
+    }
+    
+    .post-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+    }
+    
+    .post-content th, .post-content td {
+      border: 1px solid #dadce0;
+      padding: 12px;
+      text-align: left;
+    }
+    
+    .post-content th {
+      background: #f8f9fa;
+      font-weight: 500;
+    }
+    
+    .draft-notice {
+      background: #fff7e6;
+      border: 1px solid #ff9800;
+      color: #e65100;
+      padding: 16px;
+      border-radius: 4px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: #5f6368;
+    }
+    
+    @media (max-width: 768px) {
+      .post-article {
+        padding: 24px;
+      }
+      
+      .post-title {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-content">
+      <a href="index.html" class="logo">D.C. Blog</a>
+      <nav class="nav">
+        <a href="index.html">首頁</a>
+        <a href="about.html">關於我</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <div id="loading" class="loading">
+        載入文章中...
+      </div>
+      
+      <article id="post-article" class="post-article" style="display: none;">
+        <div id="draft-notice" class="draft-notice" style="display: none;">
+          ⚠️ 這是一篇草稿，尚未發佈到 GitHub
+        </div>
+        
+        <header class="post-header">
+          <h1 id="post-title" class="post-title"></h1>
+          <div class="post-meta">
+            <span id="post-author"></span>
+            <span>•</span>
+            <span id="post-date"></span>
+          </div>
+        </header>
+        
+        <div id="post-content" class="post-content"></div>
+      </article>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>© 2026 D.C. Blog. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    // 獲取 slug 參數
+    const urlParams = new URLSearchParams(window.location.search);
+    const slug = urlParams.get('slug');
+
+    if (!slug) {
+      document.getElementById('loading').innerHTML = '請指定文章 Slug';
+    } else {
+      loadPost(slug);
+    }
+
+    async function loadPost(slug) {
+      try {
+        const db = getDB();
+        const post = db.posts.find(p => p.slug === slug);
+        
+        if (!post) {
+          document.getElementById('loading').innerHTML = '文章不存在';
+          return;
+        }
+
+        // 顯示草稿提示
+        if (!post.published) {
+          document.getElementById('draft-notice').style.display = 'block';
+        }
+
+        // 填充內容
+        document.getElementById('post-title').textContent = post.frontmatter?.title || post.title || slug;
+        document.getElementById('post-author').textContent = post.frontmatter?.author || post.author || 'Admin';
+        document.getElementById('post-date').textContent = new Date(post.frontmatter?.date || post.date || Date.now()).toLocaleDateString('zh-TW');
+        
+        // 渲染 Markdown 內容
+        const content = post.content || '';
+        document.getElementById('post-content').innerHTML = marked.parse(content);
+
+        // 更新頁面標題
+        document.title = `${post.frontmatter?.title || post.title || slug} - D.C. Blog`;
+
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('post-article').style.display = 'block';
+      } catch (error) {
+        document.getElementById('loading').innerHTML = '載入失敗：' + error.message;
+      }
+    }
+  </script>
+</body>
+</html>
