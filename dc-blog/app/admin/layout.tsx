@@ -36,11 +36,15 @@ export default async function AdminLayout({
             </div>
             <div className="flex items-center gap-4">
               <span className="text-sm text-gray-600">{session.user?.name}</span>
-              <form action="/api/auth/signout" method="POST">
-                <button type="submit" className="text-sm text-red-600 hover:text-red-700">
-                  登出
-                </button>
-              </form>
+              <button
+                onClick={async () => {
+                  await fetch('/api/auth/signout', { method: 'POST' });
+                  window.location.href = '/';
+                }}
+                className="text-sm text-red-600 hover:text-red-700"
+              >
+                登出
+              </button>
             </div>
           </div>
         </div>
